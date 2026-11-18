@@ -8,7 +8,8 @@ function BottomNav() {
     const pathName = usePathname();
 
     const tabs = [
-        { name: 'Home', href: '/', icon: <Home/> },
+        { name: 'Home', href: '/home', icon: <Home/> },
+        { name: 'Dicover', href: '/', icon: <SearchIcon/> },
         { name: 'Matches', href: '/matches', icon: <Users/> }
     ]
 
