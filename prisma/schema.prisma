@@ -8,14 +8,23 @@ datasource db {
 }
 
 model Profile {
-    id                Int     @id@default(autoincrement())
-    name              String
-    age               Int
-    photo             String
-    bio               String
-    cityOrCollege     String  @map("city_or_college")
-    interests         String
-    likedLoggedInUser Boolean
+    id                  String      @id @default(cuid())
+    name                String
+    age                 Int
+    photo               String
+    bio                 String
+    interests           String
+    cityOrCollege       String      @map("city_or_college")
+    likedLoggedInUser   Boolean     @default(false)
+    createdAt           DateTime    @default(now())
+}
 
-    @@map("profile")
+model Swipe {
+    id                  String      @id @default(cuid())
+    userId              String
+    targetProfileId     String
+    action              String
+    createdAt           DateTime    @default(now())
+
+    @@unique([userId, targetProfileId])
 }
