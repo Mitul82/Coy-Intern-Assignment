@@ -1,27 +1,10 @@
 import { NextResponse } from 'next/server';
 
-import prisma from '@/lib/prisma';
-
-const currentUserId = 'current_user_id';
+import { getCachedMatches } from '@/lib/data';
 
 async function GET() {
     try {
-        const userLikes = await prisma.swipe.findMany({
-            where: {
-                userId: currentUserId,
-                action: 'like'
-            },
-            select: { targetProfileId: true }
-        });
-
-        const likedProfileIds = userLikes.map((s) => s.targetProfileId);
-
-        const mutualProfiles = await prisma.profile.findMany({
-            where: {
-                id: { in: likedProfileIds },
-                likedLoggedInUser: true
-            }
-        });
+        const mutualProfiles = getCachedMatches();
 
         return NextResponse.json({ matches: mutualProfiles }, { status: 200 });
     } catch (err: unknown) {

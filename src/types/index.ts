@@ -1,0 +1,1 @@
+export type { SafeProfile } from './SafeProfile';

@@ -1,21 +1,10 @@
 import { NextResponse } from 'next/server';
 
-import prisma from '@/lib/prisma';
-
-const currentUserId = 'current_user_id';
+import { getCachedFeed } from '@/lib/data';
 
 async function GET() {
     try {
-        const existingSwipes = await prisma.swipe.findMany({
-            where: { userId: currentUserId },
-            select: { targetProfileId: true }
-        });
-
-        const swipedIds = existingSwipes.map((s) => s.targetProfileId);
-
-        const profiles = await prisma.profile.findMany({
-            where: { id: { notIn: swipedIds } }
-        });
+        const profiles = getCachedFeed();
 
         return NextResponse.json(profiles, { status: 200 });
     } catch (err: unknown) {

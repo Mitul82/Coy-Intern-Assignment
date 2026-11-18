@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 
 import prisma from '@/lib/prisma';
 
@@ -26,6 +27,26 @@ async function POST(req: Request) {
                 action
             }
         });
+
+        let isMatch = false;
+
+        if(action === 'like') {
+            const targetProfile = await prisma.profile.findUnique({
+                where: { id: targetProfileId }
+            });
+
+            if(targetProfile && targetProfile.likedLoggedInUser) {
+                isMatch = true;
+            }
+        }
+        
+        revalidateTag('feed-data', 'max');
+
+        if(isMatch) {
+            revalidateTag('matches-data', 'max');
+        }
+
+        return NextResponse.json({ success: true, isMatch }, { status: 200 });
     } catch (err: unknown) {
         console.error(err);
 
