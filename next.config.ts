@@ -20,7 +20,8 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com"
       }
     ]
-  }
+  },
+  output: "standalone"
 };
 
 export default nextConfig;

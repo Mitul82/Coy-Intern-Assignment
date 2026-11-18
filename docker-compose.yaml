@@ -1,0 +1,15 @@
+services:
+  coy-discover:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: Coy-Discover
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - sqlite_data:/app/data
+    
+volumes:
+  sqlite_data:

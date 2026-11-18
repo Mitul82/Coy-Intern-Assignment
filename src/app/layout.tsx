@@ -27,7 +27,7 @@ function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
             <body className='bg-zinc-950 text-zinc-100 antialiased selection:bg-rose-500 selection:text-white'>
                 <div className='mx-auto flex min-h-dvh max-w-md flex-col border-x border-zinc-900 bg-zinc-950 pb-16 shadow-2xl'>
                     <header className='sticky top-0 z-30 flex h-14 items-center justify-between border-b border-zinc-900 bg-zinc-950/80 px-5 backdrop-blur-md'>
-                        <span className="bg-linear-to-r from-rose-500 to-amber-500 bg-clip-text text-xl font-black tracking-tight text-transparent">
+                        <span className='bg-linear-to-r from-rose-500 to-amber-500 bg-clip-text text-xl font-black tracking-tight text-transparent'>
                             coy
                         </span>
                         <span className='rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-zinc-400'>
