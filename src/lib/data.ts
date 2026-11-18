@@ -28,7 +28,7 @@ async function getCachedFeed(): Promise<SafeProfile[]> {
             age: true,
             photo: true,
             bio: true,
-            city_or_college: true,
+            cityOrCollege: true,
             interests: true,
         },
     });
@@ -62,7 +62,7 @@ async function getCachedMatches(): Promise<SafeProfile[]> {
             age: true,
             photo: true,
             bio: true,
-            city_or_college: true,
+            cityOrCollege: true,
             interests: true
         }
     });

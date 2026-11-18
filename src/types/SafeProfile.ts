@@ -4,7 +4,8 @@ type SafeProfile = {
     age: number,
     photo: string,
     bio: string,
-    city_or_college: string,
+    city_or_college?: string,
+    cityOrCollege?: string,
     interests: string
 }
 
