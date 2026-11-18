@@ -1,53 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Coy — SDE Intern Assignment ("Discover" Tab)
 
-## Getting Started
+A mobile-first, swipe-based discovery and mutual-matching prototype built for **Coy**, engineered with **Next.js 16 (App Router, Cache Components, React Compiler)**, **React 19**, **Tailwind CSS v4**, **Prisma**, and **SQLite (`better-sqlite3`)**.
 
-First, run the development server:
+---
 
+## Part B: "Discover" Tab Architecture & Features
+
+### Core Highlights
+1. **Strict Privacy Guarantee (Zero One-Way Like Leaks):**
+   * The database stores a `likedLoggedInUser` boolean on seeded profiles to simulate incoming likes.
+   * However, **neither the SSR payload nor `GET /api/feed` ever selects or serializes `likedLoggedInUser` to the client**. Even if a user inspects Chrome DevTools / Network responses, it is cryptographically and structurally impossible to tell who liked them until a mutual right-swipe occurs on `POST /api/swipe`.
+2. **Next.js 16 Cache Components (`"use cache"`) & SSR:**
+   * Feed and mutual match queries are server-rendered and cached using Next.js Cache Components (`"use cache"`, `cacheTag`, and `cacheLife`).
+   * Whenever a swipe occurs via `POST /api/swipe`, granular cache invalidation (`revalidateTag("feed-data")` and `revalidateTag("matches-data")`) ensures instant persistence across page reloads without unnecessary database hits.
+3. **Zero-Dependency Touch & Pointer Physics:**
+   * Smooth 60fps card dragging on mobile touchscreens and desktop mice using native Pointer Events (`setPointerCapture`), dynamic rotation, and opacity-scaled `LIKE` / `NOPE` badges, paired with accessible desktop action buttons.
+4. **30 Seeded Mock Profiles:**
+   * Pre-populated with diverse Indian colleges/cities, bios, interest pills, and Unsplash portraits. 10 of the 30 profiles are pre-configured to have liked the logged-in user so mutual matches trigger naturally during live demos.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Framework:** Next.js 16.4 (`cacheComponents: true`, `reactCompiler: true`, Turbopack)
+* **UI Library:** React 19.3 + Tailwind CSS v4 + lucide-react
+* **Database:** SQLite (`better-sqlite3`)
+* **ORM:** Prisma (`@prisma/client` + `@prisma/adapter-better-sqlite3`)
+* **Language:** TypeScript 5
+
+---
+
+## 📂 API Endpoints
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/feed` | Returns unswiped profiles for the logged-in user. Explicitly strips `likedLoggedInUser` to protect privacy. |
+| `POST` | `/api/swipe` | Accepts `{ targetProfileId: string, action: "like" \| "pass" }`. Upserts the swipe in SQLite, invalidates server cache tags, and returns `{ success: true, isMatch: boolean }`. |
+| `GET` | `/api/matches` | Returns only mutual matches (profiles where `action === "like"` by the user **and** `likedLoggedInUser === true`). |
+
+---
+
+## 💻 Local Setup Instructions
+
+### Prerequisites
+* **Node.js** v20+ (or v22/v24 with build tools for `better-sqlite3`)
+* **npm**
+
+### 1. Clone the repository & install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Mitul82/Coy-Intern-Assignment.git
+
+cd Coy-Intern-Assignment
+
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Environment Variables
+Create a `.env` file in the root directory:
+```env
+DATABASE_URL="file:./data/dev.db"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Generate Prisma Client, Push Schema & Seed 30 Profiles
+```bash
+npx prisma generate
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+npx prisma db push
 
-## Database
+npx prisma db seed
+```
 
-This project uses Prisma with a local SQLite database.
+### 4. Start the Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser (use mobile device emulation in DevTools or desktop view).
 
-1. Copy `.env.example` to `.env`.
-2. Install dependencies with `npm install`.
-3. Generate the Prisma client and create the database schema:
+---
 
-   ```bash
-   npm run db:generate
-   npm run db:migrate -- --name init
-   ```
+## 🐳 Running with Docker (Optional)
 
-4. Load the sample profiles with `npm run db:seed`.
+If you prefer running the application in an isolated container:
 
-Use `npm run db:studio` to browse the database. Prisma models are defined in `prisma/schema.prisma`; use the shared server-side client from `src/lib/prisma.ts`.
+```bash
+docker compose up --env-file ./.env --build
+```
+The app will automatically initialize the SQLite database, seed the 30 profiles, and expose the server at [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧪 Testing the Demo Flow
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Discover Tab (`/`)**: Swipe right (`♥` or drag right) and left (`✕` or drag left) on profiles.
+   * Try swiping right on **Ananya Sharma**, **Priya Nair**, **Arjun Kapoor**, or **Tanvi Joshi** to immediately trigger the **"It's a Match!"** overlay.
+2. **Persistence Check**: Reload the browser page at any point—swiped profiles will never reappear in the feed.
+3. **Matches Tab (`/matches`)**: View all mutual matches persisted in SQLite.
+4. **Home Tab (`/home`)**: Blank placeholder tab alongside Discover as requested in the specification.
