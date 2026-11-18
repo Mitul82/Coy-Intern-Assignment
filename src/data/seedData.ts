@@ -300,3 +300,5 @@ const seedProfiles = [
       likedLoggedInUser: true
     }
 ]
+
+export default seedProfiles;

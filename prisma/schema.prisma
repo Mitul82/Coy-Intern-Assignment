@@ -1,0 +1,21 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "sqlite"
+}
+
+model Profile {
+    id                Int     @id@default(autoincrement())
+    name              String
+    age               Int
+    photo             String
+    bio               String
+    cityOrCollege     String  @map("city_or_college")
+    interests         String
+    likedLoggedInUser Boolean
+
+    @@map("profile")
+}
